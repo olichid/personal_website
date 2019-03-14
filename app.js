@@ -1,31 +1,38 @@
-let express = require("express"),
-    methodOverride = require("method-override"),
-    expressSanitizer = require("express-sanitizer"),
-    app = express(),
-    port = 3000;
+//
+const express = require('express');
+const app = express();
+const mysql = require('mysql');
 
-app.set("view engine", "ejs");
-app.use(express.static("public"));
-app.use(expressSanitizer());
-app.use(methodOverride("_method"));
-
-
-app.get("/", function (req, res) {
-    res.render("frontpage");
+// mysql connection attributes
+const connection = mysql.createConnection({
+  host: 'localhost',
+  database: 'web_customer_tracker',
+  user: 'root',
+  password: 'password',
 });
 
-app.get("/blogs", function (req, res) {
-    res.render("blogs");
+// test database connection
+connection.connect(function(err) {
+  if (err) {
+    console.error('Error connecting: ' + err.stack);
+    return;
+  }
+
+  console.log('Connected as id ' + connection.threadId);
 });
 
-app.get("/gears", function (req, res) {
-    res.render("gears");
+connection.query('SELECT * FROM customer', function(error, results, fields) {
+  if (error) {
+    throw error;
+  }
+
+  results.forEach((result) => {
+    console.log(result);
+  });
 });
 
-app.get("/contact", function (req, res) {
-    res.render("contact");
+app.listen(8080, function() {
+  console.log('Example app listening on port 8080!');
 });
 
-app.listen(port, function () {
-    console.log("App Server is Working!")
-});
+connection.end();
